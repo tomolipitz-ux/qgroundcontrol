@@ -154,6 +154,17 @@ Item {
         }
     }
 
+    // AIR6: tap on the camera 2 window toggles small/large
+    MouseArea {
+        id:         secondCamTapArea
+        x:          videoStreaming.secondItem.x
+        y:          videoStreaming.secondItem.y
+        width:      videoStreaming.secondItem.width
+        height:     videoStreaming.secondItem.height
+        visible:    QGroundControl.videoManager.secondVideoActive && videoStreaming.secondItem.visible && pipState.state === pipState.fullState
+        onClicked:  videoStreaming.secondBig = !videoStreaming.secondBig
+    }
+
     ProximityRadarVideoView{
         anchors.fill:   parent
         vehicle:        QGroundControl.multiVehicleManager.activeVehicle

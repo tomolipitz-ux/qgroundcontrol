@@ -26,6 +26,11 @@ Item {
     property bool   _showStreamLoader:  QGroundControl.videoManager.decoding
     property bool   _showUvcLoader:     QGroundControl.videoManager.isUvc
 
+    // AIR6: second RTSP camera (shown in the former thermal window)
+    property bool   _showSecond:        QGroundControl.videoManager.secondVideoActive
+    property bool   secondBig:          false
+    property alias  secondItem:         thermalItem
+
     property bool   _isMode_FIT_WIDTH:  _fitMode === 0
     property bool   _isMode_FIT_HEIGHT: _fitMode === 1
     property bool   _isMode_FILL:       _fitMode === 2
@@ -70,7 +75,7 @@ Item {
         id:             videoBackground
         anchors.fill:   parent
         color:          "black"
-        visible:        _showStreamLoader || _showUvcLoader
+        visible:        _showStreamLoader || _showUvcLoader || _showSecond
         function getWidth() {
             if(_ar != 0.0){
                 if(_isMode_FIT_HEIGHT
@@ -165,12 +170,17 @@ Item {
         Item {
             id:                 thermalItem
             width:              height * QGroundControl.videoManager.thermalAspectRatio
-            height:             _camera ? (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_FULL ? parent.height : (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_PIP ? ScreenTools.defaultFontPixelHeight * 12 : parent.height * _thermalHeightFactor)) : 0
+            height:             _showSecond
+                                    ? (secondBig
+                                        ? Math.min(parent.height, parent.width / QGroundControl.videoManager.thermalAspectRatio)
+                                        : Math.min(ScreenTools.defaultFontPixelHeight * 10, parent.height * 0.4))
+                                    : _camera ? (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_FULL ? parent.height : (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_PIP ? ScreenTools.defaultFontPixelHeight * 12 : parent.height * _thermalHeightFactor)) : 0
             anchors.centerIn:   parent
-            visible:            QGroundControl.videoManager.hasThermal && _camera && _camera.thermalMode !== MavlinkCameraControlInterface.THERMAL_OFF
+            visible:            _showSecond || (QGroundControl.videoManager.hasThermal && _camera && _camera.thermalMode !== MavlinkCameraControlInterface.THERMAL_OFF)
             function pipOrNot() {
-                if(_camera) {
-                    if(_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_PIP) {
+                if(_showSecond || _camera) {
+                    var pip = _showSecond ? !secondBig : (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_PIP)
+                    if(pip) {
                         anchors.centerIn    = undefined
                         anchors.top         = parent.top
                         anchors.topMargin   = mainWindow.header.height + (ScreenTools.defaultFontPixelHeight * 0.5)
@@ -189,13 +199,19 @@ Item {
                 target:                 _camera
                 function onThermalModeChanged() { thermalItem.pipOrNot() }
             }
+            // AIR6
+            Connections {
+                target:                 root
+                function onSecondBigChanged() { thermalItem.pipOrNot() }
+                function on_ShowSecondChanged() { thermalItem.pipOrNot() }
+            }
             onVisibleChanged: {
                 thermalItem.pipOrNot()
             }
             Loader {
                 id:             thermalVideo
                 anchors.fill:   parent
-                opacity:        _camera ? (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_BLEND ? _camera.thermalOpacity / 100 : 1.0) : 0
+                opacity:        _showSecond ? 1.0 : _camera ? (_camera.thermalMode === MavlinkCameraControlInterface.THERMAL_BLEND ? _camera.thermalOpacity / 100 : 1.0) : 0
                 sourceComponent: thermalOutputComponent
                 onLoaded: { if (item) item.objectName = "thermalVideo" }
 
@@ -203,6 +219,14 @@ Item {
                     id: thermalOutputComponent
                     FlightDisplayViewVideoOutput {}
                 }
+            }
+            // AIR6: frame around the small camera 2 window
+            Rectangle {
+                anchors.fill:   parent
+                color:          "transparent"
+                border.color:   "white"
+                border.width:   1
+                visible:        _showSecond && !secondBig
             }
         }
         //-- Zoom

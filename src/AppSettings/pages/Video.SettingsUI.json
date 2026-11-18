@@ -41,6 +41,16 @@
             ]
         },
         {
+            "heading": "Kamera 2",
+            "keywords": ["rtsp", "camera 2", "kamera 2", "second camera", "pip"],
+            "showWhen": "!sourceDisabled",
+            "controls": [
+                {
+                    "setting": "videoSettings.rtspUrl2"
+                }
+            ]
+        },
+        {
             "heading": "Settings",
             "keywords": ["aspect ratio", "low latency", "decoder", "hardware decode", "disable when disarmed", "gpu", "zero-copy"],
             "showWhen": "!sourceDisabled",

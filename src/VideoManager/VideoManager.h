@@ -31,6 +31,7 @@ class VideoManager : public QObject
     Q_PROPERTY(bool     decoding                READ decoding                                   NOTIFY decodingChanged)
     Q_PROPERTY(bool     fullScreen              READ fullScreen             WRITE setfullScreen NOTIFY fullScreenChanged)
     Q_PROPERTY(bool     hasThermal              READ hasThermal                                 NOTIFY decodingChanged)
+    Q_PROPERTY(bool     secondVideoActive       READ secondVideoActive                          NOTIFY secondVideoActiveChanged)   // AIR6: second RTSP camera
     Q_PROPERTY(bool     hasVideo                READ hasVideo                                   NOTIFY hasVideoChanged)
     Q_PROPERTY(bool     isStreamSource          READ isStreamSource                             NOTIFY isStreamSourceChanged)
     Q_PROPERTY(bool     isUvc                   READ isUvc                                      NOTIFY isUvcChanged)
@@ -66,6 +67,7 @@ public:
     bool decoding() const { return _decoding; }
     bool fullScreen() const { return _fullScreen; }
     bool hasThermal() const;
+    bool secondVideoActive() const;   // AIR6: second RTSP camera is decoding
     bool hasVideo() const;
     bool isStreamSource() const;
     bool isUvc() const;
@@ -84,6 +86,7 @@ signals:
     void aspectRatioChanged();
     void autoStreamConfiguredChanged();
     void decodingChanged();
+    void secondVideoActiveChanged();   // AIR6
     void fullScreenChanged();
     void hasVideoChanged();
     void imageFileChanged(const QString &filename);
@@ -143,6 +146,8 @@ private:
     QAtomicInteger<bool> _recording = false;
     QAtomicInteger<bool> _streaming = false;
     QSize _videoSize;
+    QAtomicInteger<bool> _secondDecoding = false;   // AIR6: second camera (uses the "thermalVideo" receiver)
+    QSize _secondVideoSize;                         // AIR6
     QString _imageFile;
     QString _uvcVideoSourceID;
 

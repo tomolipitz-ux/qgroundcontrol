@@ -177,6 +177,7 @@ void VideoManager::init(QQuickWindow *mainWindow)
     (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->udpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->rtspUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl2(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);   // AIR6
     (void) connect(_videoSettings->tcpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->aspectRatio(), &Fact::rawValueChanged, this, &VideoManager::aspectRatioChanged);
     (void) connect(_videoSettings->lowLatencyMode(), &Fact::rawValueChanged, this, [this](const QVariant &value) { Q_UNUSED(value); _restartAllVideos(); });
@@ -431,7 +432,12 @@ double VideoManager::thermalAspectRatio() const
         }
     }
 
-    return 1.0;
+    // AIR6: second RTSP camera - use the decoded resolution
+    if (!_secondVideoSize.isEmpty()) {
+        return static_cast<double>(_secondVideoSize.width()) / _secondVideoSize.height();
+    }
+
+    return 16.0 / 9.0;
 }
 
 double VideoManager::hfov() const
@@ -468,6 +474,12 @@ bool VideoManager::hasThermal() const
     }
 
     return false;
+}
+
+bool VideoManager::secondVideoActive() const
+{
+    // AIR6: the "thermalVideo" receiver is used for camera 2 when no MAVLink thermal camera is present
+    return _secondDecoding && !hasThermal();
 }
 
 bool VideoManager::hasVideo() const
@@ -686,6 +698,17 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
     }
 
     if (receiver->isThermal()) {
+        // AIR6: if no MAVLink thermal stream is announced, the thermal receiver shows camera 2 (RTSP URL Kamera 2)
+        const QGCVideoStreamInfo *pInfo = receiver->videoStreamInfo();
+        if (!(pInfo && pInfo->isThermal())) {
+            QString url2 = _videoSettings->rtspUrl2()->rawValue().toString().trimmed();
+            if (!_videoSettings->streamEnabled()->rawValue().toBool()) {
+                url2.clear();
+            }
+            if (url2 != receiver->uri()) {   // null and empty count as equal -> no needless restarts
+                settingsChanged |= _updateVideoUri(receiver, url2);
+            }
+        }
         return settingsChanged;
     }
 
@@ -924,6 +947,10 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
         if (!receiver->isThermal()) {
             _decoding = active;
             emit decodingChanged();
+        } else {
+            // AIR6: camera 2
+            _secondDecoding = active;
+            emit secondVideoActiveChanged();
         }
     });
 
@@ -950,6 +977,10 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
         if (!receiver->isThermal()) {
             _videoSize = size;
             emit videoSizeChanged();
+            emit aspectRatioChanged();
+        } else {
+            // AIR6: camera 2
+            _secondVideoSize = size;
             emit aspectRatioChanged();
         }
     });

@@ -30,6 +30,15 @@
             "keywords": "rtsp,video url,stream url"
         },
         {
+            "name": "rtspUrl2",
+            "shortDesc": "RTSP address of the second camera (e.g. rtsp://192.168.144.26:8554/main.264). Leave empty to turn camera 2 off.",
+            "longDesc": "AIR6: RTSP url of a second camera. It is shown as a small picture-in-picture window. Tap the window to enlarge it, tap again to make it small. Leave empty to disable.",
+            "type": "string",
+            "default": "",
+            "label": "RTSP URL Kamera 2",
+            "keywords": "rtsp,video url,stream url,camera 2,kamera 2,second camera"
+        },
+        {
             "name": "tcpUrl",
             "shortDesc": "Network address and port for TCP video stream (e.g. 192.168.143.200:3001).",
             "longDesc": "TCP url address and port to bind to for video stream. Example: 192.168.143.200:3001",

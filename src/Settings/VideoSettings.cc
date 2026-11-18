@@ -85,6 +85,7 @@ void VideoSettings::_setDefaults()
 }
 
 DECLARE_SETTINGSFACT(VideoSettings, aspectRatio)
+DECLARE_SETTINGSFACT(VideoSettings, rtspUrl2)   // AIR6: second camera
 DECLARE_SETTINGSFACT(VideoSettings, videoFit)
 DECLARE_SETTINGSFACT(VideoSettings, gridLines)
 DECLARE_SETTINGSFACT(VideoSettings, showRecControl)

@@ -17,6 +17,7 @@ public:
     DEFINE_SETTINGFACT(udpUrl)
     DEFINE_SETTINGFACT(tcpUrl)
     DEFINE_SETTINGFACT(rtspUrl)
+    DEFINE_SETTINGFACT(rtspUrl2)   // AIR6: second camera
     DEFINE_SETTINGFACT(aspectRatio)
     DEFINE_SETTINGFACT(videoFit)
     DEFINE_SETTINGFACT(gridLines)
