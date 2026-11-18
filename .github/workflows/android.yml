@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - 'Stable*'
+      - air6
     tags:
       - 'v*'
     paths-ignore:
