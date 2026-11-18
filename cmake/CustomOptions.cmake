@@ -20,7 +20,7 @@ set(QGC_APP_COPYRIGHT "Copyright (c) ${_copyright_year} QGroundControl. All righ
 set(QGC_APP_DESCRIPTION "Open Source Ground Control App" CACHE STRING "Application description")
 set(QGC_ORG_NAME "QGroundControl" CACHE STRING "Organization name")
 set(QGC_ORG_DOMAIN "qgroundcontrol.com" CACHE STRING "Organization domain")
-set(QGC_PACKAGE_NAME "org.mavlink.qgroundcontrol" CACHE STRING "Package identifier")
+set(QGC_PACKAGE_NAME "com.air6systems.gcs" CACHE STRING "Package identifier")
 
 # Settings version - increment to clear stored settings on next boot after incompatible changes
 set(QGC_SETTINGS_VERSION "9" CACHE STRING "Settings schema version")
